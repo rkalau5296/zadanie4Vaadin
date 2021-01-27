@@ -20,8 +20,6 @@ import pl.rafal.vaadin.url.Url;
 @Route("Vehicles")
 public class Vehicles extends VerticalLayout {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Vehicles.class);
-
     private final Url url;
     private final Grid<Vehicle> vehicleGrid;
     private final IntegerField integerField;
@@ -44,7 +42,7 @@ public class Vehicles extends VerticalLayout {
         getVehicleByIdButton.addClickListener(buttonClickEvent ->{
                     if(integerField.getValue()==null){
                         Notification notification = Notification.show(
-                                "null!!!!!!!");
+                                "Nie wprowadzono nr id. Puste pole. Wprowadź nr id.");
                         add(notification);
                     }
                     addVehiclesByIdToGrid(integerField.getValue());
@@ -66,7 +64,7 @@ public class Vehicles extends VerticalLayout {
         catch (Exception e){
 
             Notification notification = Notification.show(
-                    "Id albo z poza zakresu, albo puste. Podaj prawidłowe id.");
+                    "Id z poza zakresu, nie ma takiego id. Podaj prawidłowe id.");
             add(notification);
         }
     }
