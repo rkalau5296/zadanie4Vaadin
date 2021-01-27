@@ -1,16 +1,12 @@
 package pl.rafal.vaadin.url;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.hateoas.Resources;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import pl.rafal.vaadin.dto.VehicleDto;
-
+import pl.rafal.vaadin.dto.Vehicle;
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,38 +22,39 @@ public class Url {
 
     //GET
 
-    public List<VehicleDto> getVehicles() {
+    public List<Vehicle> getVehicles() {
         URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles")
                 .build().encode().toUri();
 
-        VehicleDto[] vehicleDtos = restTemplate.getForObject(uri, VehicleDto[].class);
+        Vehicle[] vehicles = restTemplate.getForObject(uri, Vehicle[].class);
 
-        return Arrays.asList(Optional.ofNullable(vehicleDtos).orElse(new VehicleDto[0]));
+        return Arrays.asList(Optional.ofNullable(vehicles).orElse(new Vehicle[0]));
     }
 
-    public VehicleDto getVehicleById(long id) {
-        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles" + id)
+    public Vehicle getVehicleById(long id) {
+
+        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles/vehicles/" + id)
                 .build().encode().toUri();
-        return Optional.ofNullable(restTemplate.getForObject(uri, VehicleDto.class)).orElse(new VehicleDto());
+        return Optional.ofNullable(restTemplate.getForObject(uri, Vehicle.class)).orElse(new Vehicle());
     }
 
-    public VehicleDto getVehicleByColor(String color) {
+    public Vehicle getVehicleByColor(String color) {
         URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles/vehicle/" + color)
                 .build().encode().toUri();
-        return Optional.ofNullable(restTemplate.getForObject(uri, VehicleDto.class)).orElse(new VehicleDto());
+        return Optional.ofNullable(restTemplate.getForObject(uri, Vehicle.class)).orElse(new Vehicle());
     }
 
     //POST
 
-    public VehicleDto postVehicle(final VehicleDto vehicleDto) {
+    public Vehicle postVehicle(final Vehicle vehicleDto) {
         URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles")
                 .build().encode().toUri();
-        return restTemplate.postForObject(uri, vehicleDto, VehicleDto.class);
+        return restTemplate.postForObject(uri, vehicleDto, Vehicle.class);
     }
 
     //PUT
 
-    public void updateVehicle(final VehicleDto vehicleDto) {
+    public void updateVehicle(final Vehicle vehicleDto) {
         URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles")
                 .build().encode().toUri();
         restTemplate.put(uri, vehicleDto);
@@ -65,7 +62,7 @@ public class Url {
     public void updateVehicleByIdAndColor(long id, String color) {
         URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles/" + id + "/" + color)
                 .build().encode().toUri();
-        restTemplate.put(uri, VehicleDto.class);
+        restTemplate.put(uri, Vehicle.class);
     }
 
     //DELETE

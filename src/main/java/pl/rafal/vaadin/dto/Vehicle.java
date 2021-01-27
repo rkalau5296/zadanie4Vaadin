@@ -4,16 +4,25 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.hateoas.ResourceSupport;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class VehicleDto extends ResourceSupport{
+public class Vehicle {
 
     private long vehicleId;
     private String brand;
     private String model;
     private String color;
+
+    @Override
+    public String toString() {
+        return "Vehicle{" +
+                "vehicleId=" + vehicleId +
+                ", brand='" + brand + '\'' +
+                ", model='" + model + '\'' +
+                ", color='" + color + '\'' +
+                '}';
+    }
 }
