@@ -68,7 +68,7 @@ public class Url {
     //DELETE
 
     public void deleteVehicle(long id) {
-        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles" + id)
+        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles/" + id)
                 .build().encode().toUri();
         restTemplate.delete(uri);
     }
