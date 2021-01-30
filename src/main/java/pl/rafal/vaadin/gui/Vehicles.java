@@ -1,26 +1,16 @@
 package pl.rafal.vaadin.gui;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.charts.model.ButtonOptions;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.Label;
-import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.renderer.NativeButtonRenderer;
 import com.vaadin.flow.router.Route;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.rafal.vaadin.dto.Vehicle;
 import pl.rafal.vaadin.url.Url;
@@ -32,7 +22,6 @@ public class Vehicles extends VerticalLayout {
     private final Grid<Vehicle> vehicleGrid;
     private final IntegerField integerField;
 
-
     @Autowired
     public Vehicles(Url url){
 
@@ -41,18 +30,13 @@ public class Vehicles extends VerticalLayout {
         vehicleGrid.setMaxWidth("800px");
         vehicleGrid.setWidth("100%");
 
-
-
         vehicleGrid.addComponentColumn(item-> new Button("Delete", buttonClickEvent -> {
-
-            deleteRowFromGrid(item.getVehicleId());
+            deleteDialog(item.getVehicleId()).open();
             addVehiclesToGrid();
-
         }));
 
         vehicleGrid.addComponentColumn(item-> new Button("Update", buttonClickEvent -> {
-
-            createFormLayout().open();
+            updateVehicleDialog().open();
         }));
 
         Button getVehicleButton = new Button("Pobierz pojazdy");
@@ -61,7 +45,7 @@ public class Vehicles extends VerticalLayout {
         integerField = new IntegerField("Podaj id pojazdu");
         Button getVehicleByIdButton = new Button("Pobierz pojazd po id");
 
-        getVehicleByIdButton.addClickListener(buttonClickEvent ->{
+        getVehicleByIdButton.addClickListener(buttonClickEvent -> {
             if(integerField.getValue()==null){
                 Notification notification = Notification.show(
                         "Nie wprowadzono nr id. Puste pole. Wprowadź nr id.");
@@ -70,15 +54,42 @@ public class Vehicles extends VerticalLayout {
             addVehiclesByIdToGrid(integerField.getValue());
         });
 
+        TextField colorField = new TextField("Podaj kolor pojazdu");
+        Text emptyText = new Text("   ");
+
+        Button colorButton = new Button("Pobierz pojazd po kolorze");
+        colorButton.addClickListener(buttonClickEvent -> {
+            System.out.println(colorField.getValue());
+            if(colorField.getValue()==null){
+                Notification notification = Notification.show(
+                        "Nie podano koloru. Puste pole. Wprowadź kolor pojazdu.");
+                add(notification);
+            }
+            addVehiclesByColorToGrid(colorField.getValue());
+        });
+
+
+        Button newVehicle = new Button("New vehicle");
+        newVehicle.addClickListener(buttonClickEvent -> addNewVehicleDialog().open());
+
         MyCustomLayout upperLayout = new MyCustomLayout();
         upperLayout.addItemWithLabel("", getVehicleByIdButton);
         upperLayout.addItemWithLabel("", getVehicleButton);
         upperLayout.addItemWithLabel("", integerField);
 
+        MyCustomLayout anotherUpperLayout = new MyCustomLayout();
+        anotherUpperLayout.addItemWithLabel("", colorButton);
+        anotherUpperLayout.addItemWithLabel("", emptyText);
+        anotherUpperLayout.addItemWithLabel("", colorField);
+
+
         MyCustomLayout gridLayout = new MyCustomLayout();
         gridLayout.addItemWithLabel("", vehicleGrid);
 
-        add(upperLayout, gridLayout);
+        MyCustomLayout lowerLayout = new MyCustomLayout();
+        lowerLayout.addItemWithLabel("", newVehicle);
+
+        add(upperLayout, anotherUpperLayout, gridLayout, lowerLayout);
     }
 
     public void addVehiclesToGrid(){
@@ -98,14 +109,23 @@ public class Vehicles extends VerticalLayout {
         }
     }
 
-    public void deleteRowFromGrid(Long id) {
-        
-        url.deleteVehicle(id);
+    public void addVehiclesByColorToGrid(String color) {
+        try{
+            System.out.println(url.getVehicleByColor(color));
+
+            vehicleGrid.setItems(url.getVehicleByColor(color));
+        }
+        catch (Exception e){
+
+            Notification notification = Notification.show(
+                    "Nie ma pojazdu z podanym kolorze. Podaj prawidłowy kolor");
+            add(notification);
+        }
     }
 
-    public Dialog createFormLayout() {
+    public Dialog updateVehicleDialog() {
 
-        Dialog dialog = new Dialog();
+        Dialog dialog = new Dialog(new Text("Update vehicle"));
 
         IntegerField integerField = new IntegerField("Vehicle Id");
         TextField brand = new TextField("Brand");
@@ -133,11 +153,73 @@ public class Vehicles extends VerticalLayout {
         upperLayout.addItemWithLabel("",brand);
         upperLayout.addItemWithLabel("",color);
         upperLayout.addItemWithLabel("",model);
-        upperLayout.addItemWithLabel("",save);
         upperLayout.addItemWithLabel("",cancel);
+        upperLayout.addItemWithLabel("",save);
+
+        dialog.add(upperLayout );
+
+        return dialog;
+    }
+    public Dialog addNewVehicleDialog() {
+
+        Dialog dialog = new Dialog(new Text("Add new vehicle"));
+
+        IntegerField integerField = new IntegerField("Vehicle Id");
+        TextField brand = new TextField("Brand");
+        TextField color = new TextField("Color");
+        TextField model = new TextField("Model");
+
+        Button save = new Button("Save", buttonClickEvent -> {
+            if(integerField.getValue()==null|| brand.getValue()==null || color.getValue()==null||model.getValue()==null)
+            {
+                Notification notification = Notification.show(
+                        "Nie wprowadzono wszystkich danych. Wypełnij wszystkie pola.");
+                add(notification);
+            }
+            url.postVehicle(new Vehicle(integerField.getValue(), brand.getValue(), color.getValue(), model.getValue()));
+            addVehiclesToGrid();
+            dialog.close();
+        });
+        Button cancel = new Button("Cancel", buttonClickEvent -> {
+            dialog.close();
+        });
+
+        MyCustomLayout upperLayout = new MyCustomLayout();
+
+        upperLayout.addItemWithLabel("",integerField);
+        upperLayout.addItemWithLabel("",brand);
+        upperLayout.addItemWithLabel("",color);
+        upperLayout.addItemWithLabel("",model);
+        upperLayout.addItemWithLabel("", cancel);
+        upperLayout.addItemWithLabel("",save);
+
         dialog.add(upperLayout );
 
         return dialog;
     }
 
+    public Dialog deleteDialog(Long id) {
+
+        Dialog dialog = new Dialog(new Text("Delete vehicle"));
+        Text deleteTextConfirmation = new Text("Are you sure you want to delete this vehicle from list?");
+        Text emptyText = new Text("   ");
+        Button delete = new Button("Delete", buttonClickEvent -> {
+
+            url.deleteVehicle(id);
+            dialog.close();
+        });
+        Button cancel = new Button("Cancel", buttonClickEvent -> {
+            dialog.close();
+        });
+
+        MyCustomLayout layout = new MyCustomLayout();
+        layout.addItemWithLabel("", deleteTextConfirmation);
+        layout.addItemWithLabel("", emptyText);
+        layout.addItemWithLabel("", cancel);
+        layout.addItemWithLabel("", delete);
+
+        dialog.add(layout);
+
+        return dialog;
+    }
 }

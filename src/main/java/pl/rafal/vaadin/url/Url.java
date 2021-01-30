@@ -39,17 +39,17 @@ public class Url {
     }
 
     public Vehicle getVehicleByColor(String color) {
-        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles/vehicle/" + color)
+        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles/vehicle/vehicle/" + color)
                 .build().encode().toUri();
         return Optional.ofNullable(restTemplate.getForObject(uri, Vehicle.class)).orElse(new Vehicle());
     }
 
     //POST
 
-    public Vehicle postVehicle(final Vehicle vehicleDto) {
+    public void postVehicle(final Vehicle vehicleDto) {
         URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles")
                 .build().encode().toUri();
-        return restTemplate.postForObject(uri, vehicleDto, Vehicle.class);
+        restTemplate.postForObject(uri, vehicleDto, Vehicle.class);
     }
 
     //PUT
