@@ -4,8 +4,6 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -32,7 +30,6 @@ public class Vehicles extends VerticalLayout {
 
         vehicleGrid.addComponentColumn(item-> new Button("Delete", buttonClickEvent -> {
             deleteDialog(item.getVehicleId()).open();
-            addVehiclesToGrid();
         }));
 
         vehicleGrid.addComponentColumn(item-> new Button("Update", buttonClickEvent -> {
@@ -59,7 +56,6 @@ public class Vehicles extends VerticalLayout {
 
         Button colorButton = new Button("Pobierz pojazd po kolorze");
         colorButton.addClickListener(buttonClickEvent -> {
-            System.out.println(colorField.getValue());
             if(colorField.getValue()==null){
                 Notification notification = Notification.show(
                         "Nie podano koloru. Puste pole. Wprowadź kolor pojazdu.");
@@ -82,7 +78,6 @@ public class Vehicles extends VerticalLayout {
         anotherUpperLayout.addItemWithLabel("", emptyText);
         anotherUpperLayout.addItemWithLabel("", colorField);
 
-
         MyCustomLayout gridLayout = new MyCustomLayout();
         gridLayout.addItemWithLabel("", vehicleGrid);
 
@@ -96,13 +91,11 @@ public class Vehicles extends VerticalLayout {
         vehicleGrid.setItems(url.getVehicles());
     }
 
-    public void addVehiclesByIdToGrid(int id) {
+    public void addVehiclesByIdToGrid(long id) {
         try{
-            url.getVehicleById(id);
             vehicleGrid.setItems(url.getVehicleById(id));
         }
         catch (Exception e){
-
             Notification notification = Notification.show(
                     "Id z poza zakresu, nie ma takiego id. Podaj prawidłowe id.");
             add(notification);
@@ -111,12 +104,9 @@ public class Vehicles extends VerticalLayout {
 
     public void addVehiclesByColorToGrid(String color) {
         try{
-            System.out.println(url.getVehicleByColor(color));
-
             vehicleGrid.setItems(url.getVehicleByColor(color));
         }
         catch (Exception e){
-
             Notification notification = Notification.show(
                     "Nie ma pojazdu z podanym kolorze. Podaj prawidłowy kolor");
             add(notification);
@@ -143,20 +133,20 @@ public class Vehicles extends VerticalLayout {
             addVehiclesToGrid();
             dialog.close();
         });
-        Button cancel = new Button("Cancel", buttonClickEvent -> {
+        Button abort = new Button("Abort", buttonClickEvent -> {
             dialog.close();
         });
 
-        MyCustomLayout upperLayout = new MyCustomLayout();
+        MyCustomLayout layout1 = new MyCustomLayout();
 
-        upperLayout.addItemWithLabel("",integerField);
-        upperLayout.addItemWithLabel("",brand);
-        upperLayout.addItemWithLabel("",color);
-        upperLayout.addItemWithLabel("",model);
-        upperLayout.addItemWithLabel("",cancel);
-        upperLayout.addItemWithLabel("",save);
+        layout1.addItemWithLabel("",integerField);
+        layout1.addItemWithLabel("",brand);
+        layout1.addItemWithLabel("",color);
+        layout1.addItemWithLabel("",model);
+        layout1.addItemWithLabel("",abort);
+        layout1.addItemWithLabel("",save);
 
-        dialog.add(upperLayout );
+        dialog.add(layout1 );
 
         return dialog;
     }
@@ -204,8 +194,8 @@ public class Vehicles extends VerticalLayout {
         Text deleteTextConfirmation = new Text("Are you sure you want to delete this vehicle from list?");
         Text emptyText = new Text("   ");
         Button delete = new Button("Delete", buttonClickEvent -> {
-
             url.deleteVehicle(id);
+            addVehiclesToGrid();
             dialog.close();
         });
         Button cancel = new Button("Cancel", buttonClickEvent -> {

@@ -5,6 +5,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import pl.rafal.vaadin.dto.Vehicle;
+import pl.rafal.vaadin.gui.Vehicles;
+
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -35,13 +37,17 @@ public class Url {
 
         URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles/vehicles/" + id)
                 .build().encode().toUri();
-        return Optional.ofNullable(restTemplate.getForObject(uri, Vehicle.class)).orElse(new Vehicle());
+
+        return restTemplate.getForObject(uri, Vehicle.class);
     }
 
-    public Vehicle getVehicleByColor(String color) {
-        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles/vehicle/vehicle/" + color)
+    public List<Vehicle> getVehicleByColor(String color) {
+        URI uri = UriComponentsBuilder.fromHttpUrl("http://localhost:8082/vehicles/vehicles/vehicles/" + color)
                 .build().encode().toUri();
-        return Optional.ofNullable(restTemplate.getForObject(uri, Vehicle.class)).orElse(new Vehicle());
+        Vehicle[] vehicleByColor = restTemplate.getForObject(uri, Vehicle[].class);
+
+        assert vehicleByColor != null;
+        return  Arrays.asList(vehicleByColor);
     }
 
     //POST
