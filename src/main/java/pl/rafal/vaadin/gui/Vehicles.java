@@ -56,11 +56,6 @@ public class Vehicles extends VerticalLayout {
 
         Button colorButton = new Button("Pobierz pojazd po kolorze");
         colorButton.addClickListener(buttonClickEvent -> {
-            if(colorField.getValue()==null){
-                Notification notification = Notification.show(
-                        "Nie podano koloru. Puste pole. Wprowadź kolor pojazdu.");
-                add(notification);
-            }
             addVehiclesByColorToGrid(colorField.getValue());
         });
 
@@ -133,7 +128,7 @@ public class Vehicles extends VerticalLayout {
             addVehiclesToGrid();
             dialog.close();
         });
-        Button abort = new Button("Abort", buttonClickEvent -> {
+        Button abort = new Button("Cancel", buttonClickEvent -> {
             dialog.close();
         });
 
